@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Train Availability</title>
+</head>
+<body>
+    <h2>Check Train Availability</h2>
+    <form id="trainForm">
+        <select id="source" name="source">
+            <option value="">Select Source</option>
+            {% for source in sources %}
+                <option value="{{ source }}">{{ source }}</option>
+            {% endfor %}
+        </select>
+        
+        <select id="destination" name="destination">
+            <option value="">Select Destination</option>
+            {% for destination in destinations %}
+                <option value="{{ destination }}">{{ destination }}</option>
+            {% endfor %}
+        </select>
+        
+    </form>
+    <div id="results"></div>
+    
+    <script>
+        async function fetchStations() {
+            const response = await fetch('/stations');
+            const stations = await response.json();
+            const sourceDropdown = document.getElementById('source');
+            const destinationDropdown = document.getElementById('destination');
+
+            stations.forEach(station => {
+                const option1 = new Option(station, station);
+                const option2 = new Option(station, station);
+                sourceDropdown.add(option1);
+                destinationDropdown.add(option2);
+            });
+        }
+
+        document.getElementById("trainForm").onsubmit = function(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            fetch("/search", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("results").innerText = JSON.stringify(data, null, 2);
+            });
+        };
+
+        fetchStations();
+    </script>
+</body>
+</html>
